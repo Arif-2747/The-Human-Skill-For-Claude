@@ -1,6 +1,6 @@
 ---
 name: human
-version: 6.0.0
+version: 7.0.0
 description: |
   Use this skill whenever the user wants to humanize text, remove AI writing
   patterns, make prose sound natural, fix robotic writing, or write new content
@@ -36,6 +36,11 @@ change must trace to a documented pattern. If it does not, leave it alone.
 no em dashes, no adverbs, but still no opinions, no specific feelings, no
 reader addressed directly. Pattern removal and voice injection are both required.
 
+**Genre governs whether a pattern is a tell (v7):** passive voice, hedging,
+and jargon are legitimate in legal, scientific, and technical writing.
+Confirm genre before flagging these in human-authored text; see the
+[genre calibration reference](./references/genre-calibration.md).
+
 ## Style Mirroring (When a Writing Sample is Provided)
 
 **Mode A:** AI text + writing sample. Remove patterns and apply user's style.
@@ -44,8 +49,9 @@ reader addressed directly. Pattern removal and voice injection are both required
 Both modes require a Style Profile across 12 dimensions before writing
 anything. Show it. Get confirmation. Then write.
 
-Below 300 words: flag uncertain dimensions. Do not present them with false
-confidence. If the sample contains AI tells, do not mirror them; flag them.
+Below 300 words: flag uncertain dimensions. Score confidence per dimension
+(v7), not just once for the whole sample. If the sample contains AI tells,
+do not mirror them; flag them.
 
 See [style profile reference](./references/style-profile.md) for the full
 profile template, extraction algorithm, genre compatibility guide, and worked
@@ -403,12 +409,10 @@ Address every audit item. Correct style drift. Produce the final version.
    specific person, not a humanized version of nobody in particular.
 
 7. **Mirroring across incompatible genres.** A Style Profile from a casual
-   newsletter does not apply to a technical spec, even from the same writer.
-   When sample and target text are different genres, flag it and ask.
+   newsletter does not apply to a technical spec; flag genre mismatches and ask.
 
-8. **Sample too short to extract reliably.** Below 300 words, you cannot
-   distinguish habits from accidents. Flag which dimensions are uncertain.
-   Ask for a longer sample if accurate mirroring matters.
+8. **Sample too short to extract reliably.** Below 300 words, habits can't
+   be distinguished from accidents; flag uncertain dimensions and ask for more.
 
 9. **User's sample contains AI patterns.** Do not mirror them. Mirror
    structural and tonal characteristics only. Flag the AI tells found so
@@ -479,6 +483,8 @@ Internal:
   applied to AI-generated text
 - [Vocabulary reference](./references/vocabulary.md) — full AI vocabulary list,
   jargon table, and throat-clearing openers
+- [Genre calibration reference](./references/genre-calibration.md) — v7:
+  genre-by-pattern exceptions for confirmed human-authored text
 
 External:
 - [blader/humanizer](https://github.com/blader/humanizer) — 29 patterns from Wikipedia's Signs of AI Writing (v2.5.1)
@@ -490,5 +496,5 @@ External:
 
 ## Skill Metadata
 
-**Created**: 2025-06-07  **Updated**: 2026-06-12  **Version**: 6.0.0
-**Based on**: blader/humanizer v2.5.1, stop-slop, human v5.0.0, Karpathy guidelines, skill-creator eval
+**Created**: 2025-06-07  **Updated**: 2026-07-04  **Version**: 7.0.0
+**Based on**: blader/humanizer v2.5.1, stop-slop, human v6.0.0, Karpathy guidelines, skill-creator eval

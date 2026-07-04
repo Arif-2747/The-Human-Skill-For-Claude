@@ -30,6 +30,7 @@ Opinion presence:   [frequent / occasional / absent]
 Typical opener:     [subject-first / verb-first / clause-first / fragment]
 Punctuation habits: [e.g. "uses parentheses for asides", "minimal commas", "no semicolons"]
 AI patterns found:  [list any AI tells in the sample — these are NOT mirrored]
+Confidence (v7):    [per-dimension High/Medium/Low — flag any Low dimension explicitly]
 ```
 
 After presenting the profile: "Does this match your writing? Anything to
@@ -155,8 +156,31 @@ data for confident extraction. Common casualties: rhythm (needs multiple
 paragraphs), fragment use (needs enough sentences to be statistically
 meaningful), recurring phrases (needs enough repetition to confirm habit).
 
+**Step 5a: Score confidence per dimension (v7).**
+Do not collapse confidence into a single below/above-300-words flag. Rate
+each of the 12 dimensions independently as High, Medium, or Low:
+
+- **High** — the sample gives enough repeated instances to state the habit
+  as fact (e.g. contractions appear or are absent consistently across 10+
+  sentences).
+- **Medium** — the pattern appears but with fewer instances than ideal, or
+  with some inconsistency (e.g. rhythm is "mostly varied" but one section
+  reads uniform).
+- **Low** — fewer than 3 instances, or directly contradictory signals. Do
+  not present a Low-confidence dimension as a firm rule; present it as a
+  tentative read and default toward the more common register for the genre.
+
+A sample can be above 300 words overall and still have one or two Low
+dimensions — a personal essay may give high confidence on tone and
+contractions but low confidence on punctuation habits if the sample rarely
+uses anything beyond periods and commas. Report confidence per dimension in
+the profile output, not as one blanket flag for the whole sample. This
+prevents a strong read on the loudest dimension (usually tone) from masking
+a weak read on a quieter one (usually rhythm or punctuation).
+
 **Step 6: Output the profile.**
-Fill the template. Present it. Wait for confirmation.
+Fill the template, including the per-dimension confidence ratings from Step
+5a. Present it. Wait for confirmation.
 
 ---
 
