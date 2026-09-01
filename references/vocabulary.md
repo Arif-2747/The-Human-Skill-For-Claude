@@ -10,18 +10,23 @@ body's abbreviated lists leave an edge case unresolved.
 Remove these words wherever they appear. Most have no direct replacement —
 rewrite the sentence to say the specific thing.
 
-additionally, align with, at its core, beckons, boasts, breathtaking,
-bustling, captivating, commendable, comprehensive, crucial, cutting-edge,
-delve, demystify, dynamic, embark, emerge, empower, enduring, enhance,
-ensure, ever-evolving, explore, facilitate, firsthand, foster, foster
-collaboration, game-changing, garner, groundbreaking, harness, highlight
-(verb), holistic, innovative, in today's (landscape/world/era), intricate,
-intricacies, invaluable, journey, key (adjective), landscape (abstract),
-leverage, meticulous, multifaceted, navigate, nestled, noteworthy,
-paramount, pivotal, profound, realm, resonate, revolutionize, rich
-(figurative), robust, seamless, showcase, significance, streamline,
-synergy, tapestry (abstract), testament, throughout, transformative,
-underscore (verb), unleash, unlock, unpack, valuable, vibrant, vital.
+additionally, align with, at its core, beacon, beckons, boasts,
+breathtaking, bustling, captivating, commendable, comprehensive, crucial,
+cutting-edge, delve, demystify, dynamic, embark, emerge, empower, enduring,
+enhance, ensure, ever-evolving, explore, facilitate, firsthand, foster,
+foster collaboration, game-changer, game-changing, garner, groundbreaking,
+harness, highlight (verb), holistic, innovative, in today's
+(landscape/world/era), intricate, intricacies, invaluable, journey, key
+(adjective), landscape (abstract), leverage, meticulous, multifaceted,
+navigate, nestled, noteworthy, paradigm shift, paramount, pivotal, profound,
+realm, resonate, revolutionize, rich (figurative), robust, seamless,
+showcase, significance, streamline, supercharge, synergy, tapestry
+(abstract), testament, "this changes everything," "this is huge,"
+throughout, transformative, underscore (verb), unleash, unlock, unpack,
+utilize, valuable, vibrant, vital.
+
+Added in v8 from no-ai-slop: beacon, game-changer, paradigm shift,
+supercharge, "this changes everything," "this is huge," utilize.
 
 ---
 
@@ -96,6 +101,16 @@ Cut these and start with the content:
 
 Rule #14 bans em dashes in all output. Three contexts where they appear and
 the correct replacement for each.
+
+**Why this stays stricter than no-ai-slop's rule (v8 note):** no-ai-slop
+allows 1-2 em dashes in a longer draft "when they clearly help." This skill
+does not adopt that exception. The zero-tolerance rule predates v8, is
+already documented extensively above with three replacement patterns that
+cover every legitimate use an em dash would otherwise serve, and changing it
+would be a real behavior change smuggled in under a routine merge rather
+than a decision made on its own. If a future revision wants to loosen this,
+that should be its own explicit change with its own before/afters, not a
+side effect of adding no-ai-slop's patterns.
 
 **Prose aside or connector**
 Replace with a period, comma, or hyphen (-). A hyphen is not an em dash and

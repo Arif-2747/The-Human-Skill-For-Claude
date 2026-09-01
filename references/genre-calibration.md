@@ -5,7 +5,7 @@ text that is confirmed human-authored rather than AI-generated or mixed.
 
 ## Why this exists
 
-A handful of the 38 patterns are also normal, expected register choices in
+A handful of the 42 patterns are also normal, expected register choices in
 specific professional genres. Passive voice is standard in legal and
 scientific writing. Hedging is standard in academic writing. Domain jargon
 is standard in technical writing. Without a genre check, the skill treats a
@@ -26,13 +26,13 @@ line editing, or any input the user has stated is not AI-generated.
 
 It does **not** apply to:
 - Mode A input text (the AI-generated text being rewritten) — every one of
-  the 38 patterns still applies there, regardless of genre. AI-generated
+  the 42 patterns still applies there, regardless of genre. AI-generated
   legal or scientific text overuses these same patterns far beyond what a
   human writer in that genre would produce; genre alone does not excuse it.
 - Pattern #14 (em dashes). No genre uses em dashes as a structural
   requirement; this pattern is never genre-exempted.
 - Any pattern not listed in the table below. The exception list is narrow
-  by design — most of the 38 patterns are tells in every genre.
+  by design — most of the 42 patterns are tells in every genre.
 
 ## Genre-by-pattern exception table
 

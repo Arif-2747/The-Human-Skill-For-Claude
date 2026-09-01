@@ -1,9 +1,11 @@
 <!-- Copyright (c) 2026 Arif Islam Shaik (github.com/Arif-2747). All rights reserved. -->
 # human
 
-An AI skill for removing AI writing patterns from text, or writing new content
-in your voice. It makes generated prose sound like a person wrote it, without
-simplifying or shortening anything.
+An AI skill for removing AI writing patterns from text, writing new content
+in your voice, or naming which lines in a draft read as AI without touching
+them. Covers general and business prose and, since v9, narrative work:
+fiction, screenplays, scripts, and personal essays. It makes generated prose
+sound like a person wrote it, without simplifying or shortening anything.
 
 ---
 
@@ -11,7 +13,7 @@ simplifying or shortening anything.
 
 `human` takes AI-generated (or partially AI-generated) text and removes the
 tells that mark it as machine-written: inflated significance, hedge-stacked
-sentences, em dashes, rule-of-three lists, passive constructions, and 34
+sentences, em dashes, rule-of-three lists, passive constructions, and 37
 other documented patterns. It fixes both vocabulary and sentence structure,
 adds genuine voice where the original has none, and leaves everything else
 untouched.
@@ -24,13 +26,58 @@ extracts the author's style and applies it to the output: either rewriting
 existing text in that voice (Mode A) or generating new content from a brief
 in that voice (Mode B). See [Style Mirroring](#5-style-mirroring).
 
+If instead of a rewrite, the request is to check whether a draft reads as
+AI, the skill runs Detect mode: it names each pattern present and quotes the
+line, without rewriting anything or guessing at authorship. See
+[Editing workflow](#4-editing-workflow).
+
+If the input is narrative form, fiction, a screenplay, a script, or a
+personal essay published under the writer's name, the skill runs a
+structural process first, before its usual pattern work. See
+[Section 8](#8-form-narrative-work-v9) below and
+[What problem this solves](#2-what-problem-this-solves).
+
 **Getting started:** copy `SKILL.md` and the `references/` folder into your
 skills directory. The skill activates automatically on requests to humanize,
-de-AI, rewrite for naturalness, remove AI patterns, or write new content in
-your style. It does not activate for code review, translation, or original
-drafting with no AI text and no style sample involved. To use Style
-Mirroring, upload or paste your writing sample in the same message as your
-request; the skill detects it and runs the profile extraction on its own.
+de-AI, rewrite for naturalness, remove AI patterns, write new content in
+your style, or audit a draft for AI tells, across general prose and
+narrative work alike. It does not activate for code review, translation, or
+original drafting with no AI text and no style sample involved. To use
+Style Mirroring, upload or paste your writing sample in the same message as
+your request; the skill detects it and runs the profile extraction on its
+own.
+
+**New in v9: Form.** `human` and a separate narrative-focused skill,
+`humanscope`, are now one skill. `humanscope` was built on
+[StoryScope](https://arxiv.org/abs/2604.03136) (Russell, Rajendhran, Pham,
+Iyyer, and Wieting; University of Maryland and Google DeepMind; COLM 2026),
+which found that AI-generated fiction is separable from human fiction at
+93.2 macro-F1 using narrative structure alone, and that professional-grade
+prose rewriting only brings detection down from 95.5 to 93.9: a 1.6-point
+drop. That finding is why the merge is a genuine architectural addition and
+not a rename: `human`'s 42 patterns operate on vocabulary and sentence
+structure, which is a cosmetic layer sitting on top of a structural signal
+those patterns were never built to touch. Form (General or Narrative) is a
+dimension that now sits alongside Task Type (Edit or Detect); for Narrative
+form, Edit produces a Structure Sheet before drafting and Detect scores
+against 30 measured narrative features instead of the 42 patterns alone.
+See [Form: General or Narrative](./SKILL.md#form-general-or-narrative) in
+`SKILL.md`, or [Section 8](#8-form-narrative-work-v9) below for the fuller
+picture, and the [narrative mode reference](./references/narrative-mode.md)
+for the full process.
+
+**New in v8:** a Detect mode and four additional patterns, both sourced from
+[no-ai-slop](https://github.com/petergyang/no-ai-slop) by Peter Yang (see
+[What problem this solves](#2-what-problem-this-solves)). Detect mode
+answers "does this read as AI" without rewriting, by naming and quoting the
+patterns present instead of returning a probability score. Patterns 39-42
+add colon reveals, interpretive metadiscourse, summary-recap endings, and a
+portability test (a diagnostic for spotting generic filler, not a phrase to
+strip). Every change made under v8's own [What this isn't](#what-this-isnt)
+boundary: nothing here is aimed at helping text evade an AI detector, and
+Detect mode explicitly refuses to render an authorship verdict of its own.
+The same boundary now applies to Form's narrative audit: it reports a
+feature count, never a verdict on authorship.
 
 **New in v7:** two accuracy improvements, both scoped to the skill's own
 judgment quality rather than to any external system. First, Style Profile
@@ -40,7 +87,7 @@ rhythm or punctuation (see [Style mirroring](#5-style-mirroring)). Second,
 a Genre Calibration check stops the skill from misflagging genuinely
 human-authored, genre-conventional writing (passive voice in a contract,
 hedging in a research paper, jargon in technical documentation) as an AI
-tell (see [Design principles](#3-design-principles-the-38-patterns)). Both
+tell (see [Design principles](#3-design-principles-the-42-patterns)). Both
 changes make pattern detection and style matching more precise; neither
 changes what the skill outputs when the input actually is AI-generated, and
 neither is designed around, or intended for, evading AI-detection systems.
@@ -50,7 +97,7 @@ See [What this isn't](#what-this-isnt) below.
 
 ## 2. What problem this solves
 
-Two existing projects already cover parts of this job. Neither is complete
+Three existing projects already cover parts of this job. None is complete
 on its own.
 
 ### blader/humanizer
@@ -81,7 +128,28 @@ stop-slop tells a model what to do when a paragraph is mostly clean and only
 two sentences are broken. The default behavior, rewriting the whole thing
 for consistency, is exactly the problem.
 
-### The problem neither source solves: over-correction
+### no-ai-slop
+
+[no-ai-slop](https://github.com/petergyang/no-ai-slop) by Peter Yang (MIT
+licensed) is a newer, self-contained skill covering much of the same ground
+as humanizer and stop-slop, plus a few patterns neither names on its own:
+colon reveals used as staged punchlines, interpretive metadiscourse that
+tells the reader what to notice, summary-recap endings, and faux-insight
+setups that flatter the writer as the lone expert. It also documents a
+useful diagnostic, the portability test: if a sentence could move unchanged
+to a different person, company, or product, it's filler. And it draws a
+sharp, correct line between two different jobs: editing a draft versus
+auditing one for AI tells without touching it.
+
+**What it doesn't do:** it doesn't integrate with a genre calibration
+system, so applying it directly to human-authored legal or scientific
+writing risks the same false-positive problem [Genre calibration](#genre-calibration-v7)
+was built to prevent. Its em dash rule is also looser than this skill's
+(it allows 1-2 per long draft); see the note in
+[Design principles](#style-patterns-14-23) for why v8 does not adopt that
+looser rule.
+
+### The problem none of the three sources solves: over-correction
 
 Give a capable model either skill and ask it to humanize a piece of text. It
 will often rewrite sentences that didn't need rewriting, restructure clean
@@ -97,17 +165,21 @@ whatever the original text was actually trying to do.
 
 ### How this skill solves it
 
-`human` merges the 29 humanizer patterns and 9 stop-slop structural rules
-into a single numbered set (38 total, detailed in
-[Design principles](#3-design-principles-the-38-patterns)), then wraps that
-set in an executable editorial process built on four rules adapted from
+`human` merges the 29 humanizer patterns, 9 stop-slop structural rules, and
+4 non-duplicate no-ai-slop patterns into a single numbered set (42 total,
+detailed in [Design principles](#3-design-principles-the-42-patterns)), then
+wraps that set in an executable editorial process built on four rules
+adapted from
 [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876)
 on how LLMs go wrong when editing code: think before rewriting, minimum
 intervention, surgical edits, and defined success criteria. Every change
-made during a rewrite has to trace to one of the 38 numbered patterns or a
+made during a rewrite has to trace to one of the 42 numbered patterns or a
 missing voice beat. If it doesn't trace to something documented, it doesn't
 get touched. That constraint is what closes the over-correction gap that
-neither upstream project addresses.
+none of the three upstream projects fully addresses on its own; no-ai-slop
+gets closest, with its "minimum effective edit" principle, but ties that
+discipline to its own patterns rather than to a shared numbered library with
+genre calibration and Style Mirroring built in.
 
 ### What this isn't
 
@@ -121,15 +193,36 @@ than actually being well-written. Any change in a detector's score on this
 skill's output is an incidental side effect of the same statistical tells
 (burstiness, perplexity, stock phrasing) that both a detector and a human
 editor would notice, not a design target. v7's Genre Calibration
-improvement (below) is scoped the same way: it sharpens the skill's own
-judgment about what counts as a tell in genuinely human-authored text; it
-does not change how patterns are handled in AI-generated text.
+improvement is scoped the same way: it sharpens the skill's own judgment
+about what counts as a tell in genuinely human-authored text; it does not
+change how patterns are handled in AI-generated text.
+
+v8's Detect mode is scoped the same way too, in the opposite direction.
+Detect mode names patterns and quotes lines; it never states or implies a
+verdict on whether a text was AI-written, because that would be exactly the
+kind of authorship claim this skill declines to make. It is also, by
+design, not something someone could use to learn how to slip a specific
+draft past a detector: it reports what patterns are present, not how close
+the draft is to a detector's decision boundary, and it makes no changes to
+the text at all. This is why `watermarks-remover`, a related but different
+kind of tool that strips AI-provenance metadata and statistical watermarks
+from files, was not integrated into this skill alongside no-ai-slop: that
+tool's purpose is defeating detection and provenance systems directly,
+which is the one thing this project has committed not to build.
+
+v9's narrative audit, folded in from `humanscope`, holds the same line for
+Form's Detect path: it reports a count of which of the 30 narrative
+features lean AI, never a probability or a verdict, and the Structure Sheet
+on the Edit side exists to make narrative writing genuinely better
+structured, not to reverse-engineer a specific detector's blind spots.
+Nothing in Form is built against any particular tool; it's built against
+the pattern the StoryScope researchers actually measured in human writing.
 
 ---
 
-## 3. Design principles (the 38 patterns)
+## 3. Design principles (the 42 patterns)
 
-The patterns are organized into six categories, matching the structure in
+The patterns are organized into seven categories, matching the structure in
 `SKILL.md`. Each one below states what the tell looks like, why AI text
 produces it, and how it gets fixed. Full before/after examples and the
 complete vocabulary and jargon tables live in
@@ -208,7 +301,10 @@ rather than human-typed.
     modifiers ("cross-functional," "data-driven"). Fix: drop the hyphen
     where the pair reads fine without it.
 21. **Persuasive authority tropes**: framing devices like "at its core,
-    what matters is..." that delay the actual point. Fix: state the point.
+    what matters is..." that delay the actual point, and faux-insight
+    setups that flatter the writer as the lone expert ("here's what nobody
+    tells you," "what most people get wrong"). Fix: state the claim
+    directly.
 22. **Signposting announcements**: "let's dive in," "here's what you need
     to know." Fix: start with the content, skip the announcement.
 23. **Fragmented headers**: a heading immediately followed by one sentence
@@ -256,8 +352,11 @@ Sentence- and paragraph-level construction habits, sourced from stop-slop.
     ("the decision emerged," "the complaint became a fix"). Fix: name the
     actual person or team who did the thing.
 35. **Rhythm monotony**: three consecutive sentences of near-identical
-    length, or every paragraph landing on a punchy one-liner. Fix: vary
-    sentence length; break the pattern.
+    length, or every paragraph landing on a punchy one-liner, including a
+    "fake-profound" kicker sentence at the end of a piece. Fix: vary
+    sentence length; break the pattern; delete a kicker rather than
+    polishing it into a better metaphor, and end on the clearest concrete
+    sentence already in the draft.
 36. **Wh- sentence starters**: sentences opening with What, When, Where,
     Which, Who, Why, or How as a structural crutch. Fix: restructure to
     lead with the subject or verb.
@@ -268,9 +367,31 @@ Sentence- and paragraph-level construction habits, sourced from stop-slop.
     "lean into" for accept, "deep dive" for analysis. Fix: replace with the
     plain equivalent. Full table in the vocabulary reference.
 
+### From no-ai-slop (39–42, v8)
+
+Four patterns from [no-ai-slop](https://github.com/petergyang/no-ai-slop)
+that weren't already covered by the other 38. Detect mode (see
+[Editing workflow](#4-editing-workflow)) also draws on this source.
+
+39. **Colon reveals**: a noun phrase, a colon, then a lowercase dramatic
+    reveal used as a staged punchline ("the best part: it learns").
+    Fix: rewrite as a plain sentence. Colons stay fine for lists, labels,
+    and quotes.
+40. **Interpretive metadiscourse**: lines that step outside the subject to
+    tell the reader what to notice or how to weigh it ("that matters more
+    than it sounds," "as you can see"). Fix: delete the aside if the
+    surrounding prose already makes the point.
+41. **Summary-recap endings**: "in conclusion," "ultimately," "overall," or
+    a closing paragraph that restates the piece the reader just read.
+    Fix: end on the last concrete point, takeaway, or next action instead.
+42. **Portability test**: not a phrase to remove but a diagnostic for any
+    sentence that feels generic. If it could move unchanged to a different
+    person, company, or product, it's filler. Fix: replace with a fact,
+    mechanism, or example specific to this subject, or cut it.
+
 ### Editorial discipline (Karpathy rules)
 
-These four rules govern *how* the 38 patterns get applied. They sit
+These four rules govern *how* the 42 patterns get applied. They sit
 alongside the patterns as a fifth, equally weighted design principle.
 Without them, pattern removal is just substitution at scale.
 
@@ -293,7 +414,7 @@ zero AI patterns and zero voice still reads as artificial.
 
 ### Genre calibration (v7)
 
-Five of the 38 patterns are also normal register choices in specific
+Five of the 42 patterns are also normal register choices in specific
 professional genres: #7 (AI vocabulary, domain-term subset), #13 (passive
 voice), #27 (filler phrases), #28 (hedging), and #38 (jargon). Passive
 voice is standard in legal and scientific writing, hedging is standard in
@@ -305,41 +426,68 @@ that no longer reads as belonging to that field.
 
 This calibration applies only to text confirmed human-authored: a Style
 Mirroring sample, or a draft submitted for line editing. It never applies
-to Mode A input text. AI-generated legal or scientific prose overuses
-these same patterns well past what a genre convention would justify, so
-every pattern still applies there regardless of genre. Em dashes (#14) are
-never genre-exempted under any circumstance. The full genre-by-pattern
-exception table, worked contrasts, and the boundary against Mode A input
-are in
+to Mode A input text or to Detect mode findings; patterns 39-42 added in
+v8 are not genre-exempted either, since none of the four describe a
+legitimate professional register. AI-generated legal or scientific prose
+overuses these same patterns well past what a genre convention would
+justify, so every pattern still applies there regardless of genre. Em
+dashes (#14) are never genre-exempted under any circumstance. The full
+genre-by-pattern exception table, worked contrasts, and the boundary
+against Mode A input are in
 [`references/genre-calibration.md`](./references/genre-calibration.md).
 
 ---
 
 ## 4. Editing workflow
 
-The skill runs a fixed eight-step process for every rewrite:
+The skill first checks Form (General or Narrative, see
+[Section 8](#8-form-narrative-work-v9)), then decides which of two jobs is
+being asked for, then runs a fixed process for whichever one applies. For
+Narrative form, both Detect and Edit below are replaced by the narrative
+audit and Structure Sheet process in
+[`references/narrative-mode.md`](./references/narrative-mode.md); this
+section describes the General-form process.
 
-1. **Identify the mode.** Mode A (AI text + writing sample), Mode B
-   (writing sample + brief, no input text), or no sample (humanize using
-   the input's existing register).
-2. **Read for scope.** Note complexity, technical depth, and length. All of
-   it survives. State assumptions; ask if scope is unclear.
-3. **Define success criteria.** Which patterns are present, the target
-   score, length constraints, and (if a sample was provided) a Style
-   Fidelity target of 8+/10.
-4. **Run Style Mirroring, if a sample is provided.** Extract the
+### Detect (v8, from no-ai-slop)
+
+If the request is to check whether a draft reads as AI, audit it, or flag
+patterns without rewriting: walk the 42 patterns against the draft and, for
+each one present, quote the line and name the pattern and its number. No
+rewrite, no score, and no claim about whether AI actually wrote it; the
+output is quoted evidence the user can judge, not a verdict. Offer to run
+Edit on the same draft afterward. Full output template and a worked example
+are in
+[`references/detect-mode.md`](./references/detect-mode.md).
+
+### Edit (default)
+
+For a rewrite, the skill runs a fixed seven-step process:
+
+1. **Identify form and mode.** Form (General or Narrative) first; for
+   General form, Mode A (AI text + writing sample), Mode B (writing sample
+   + brief, no input text), or no sample (humanize using the input's
+   existing register and voice signals already present in it).
+2. **Read for scope and define success criteria.** Note complexity,
+   technical depth, and length; all of it survives. State assumptions; ask
+   if scope, audience, or outcome is unclear. Note which patterns are
+   present, target score, length constraints, and (if a sample was
+   provided) a Style Fidelity target of 8+/10.
+3. **Run Style Mirroring, if a sample is provided.** Extract the
    12-dimension Style Profile, show it, and wait for confirmation before
    writing anything. See [Style Mirroring](#5-style-mirroring).
-5. **Draft.** Apply all 38 patterns and the confirmed Style Profile (Mode
+4. **Draft.** Apply all 42 patterns and the confirmed Style Profile (Mode
    A), or generate from the brief with the Style Profile applied from
    sentence one (Mode B). No default to a generic register.
-6. **Anti-AI audit.** Ask "what still reads as AI-generated?" and "where
-   did the style drift from the profile?" List both.
-7. **Final rewrite.** Address every audit item and correct any style
-   drift. This produces the delivered version.
-8. **Score.** Rate the final version, not the draft, on the six
+5. **Anti-AI audit and final rewrite.** Ask "what still reads as
+   AI-generated?" and "where did the style drift from the profile?"
+   Address every item found; this produces the delivered version.
+6. **Score.** Rate the final version, not the draft, on the six
    dimensions in [Scoring](#6-scoring). Below 35/50 on the first five
    triggers another revision pass.
+7. **Deliver with a What Changed section (v8).** A short receipt listing
+   which numbered patterns were fixed and where, distinct from the
+   internal audit list in step 5, so the user can check the edit against
+   their own read of the draft instead of taking the rewrite on faith.
 
 For handling text that's mostly clean already, the same minimum-intervention
 rule applies at sentence granularity: identify only the sentences with
@@ -347,8 +495,9 @@ documented patterns, fix those, leave everything else verbatim, and note
 which patterns were present rather than rewriting the surrounding prose for
 flow.
 
-A worked example of the full process, applied to a real piece of
-AI-generated text end to end, is in
+A worked example of the process, applied to a real piece of AI-generated
+text end to end (using an earlier, more granular step numbering than the
+seven-step list above), is in
 [`references/worked-example.md`](./references/worked-example.md).
 
 ---
@@ -359,7 +508,7 @@ If a writing sample is provided alongside the request, the skill runs Style
 Mirroring before writing anything.
 
 **Mode A: rewrite in your style.** Give it AI-generated text and a sample
-of your writing. It removes the 38 patterns and rewrites the output to match
+of your writing. It removes the 42 patterns and rewrites the output to match
 your voice, not a generic clean register.
 
 **Mode B: write from scratch in your style.** Give it a sample and a topic
@@ -381,7 +530,7 @@ Two constraints override everything else in the profile:
   are uncertain instead of presenting them with false confidence.
 - **AI tells in the sample are never mirrored.** If the sample itself
   contains passive voice, adverbs, or significance inflation, those get
-  flagged and excluded. The 38 patterns still apply regardless of what the
+  flagged and excluded. The 42 patterns still apply regardless of what the
   sample does. Em dashes specifically are never reproduced even if the
   sample uses them; rule #14 overrides style fidelity.
 
@@ -402,12 +551,26 @@ casual newsletter doesn't carry over to a technical spec), and worked
 examples of both modes are in
 [`references/style-profile.md`](./references/style-profile.md).
 
+**No sample provided (v8, from no-ai-slop):** most requests don't come with
+a separate writing sample to upload. For those, the skill runs a lighter
+version of the same think-before-rewriting gate: before drafting, it notes
+3-5 voice signals already present in the input text itself (vocabulary,
+cadence, bluntness, humor, uncertainty, digressions) and keeps them while
+removing patterns. This is what stops the no-sample path from defaulting to
+generic, voiceless "clean" prose, which was a real gap in the v7 process:
+Style Mirroring protected voice when a sample was uploaded, but the far more
+common case, no sample at all, had no equivalent protection. Detect mode
+uses the same read, for a different reason: telling a genuine voice quirk
+(a writer who always opens with "and") apart from an actual pattern. See
+[`references/detect-mode.md`](./references/detect-mode.md).
+
 ---
 
 ## 6. Scoring
 
-After the final rewrite, the skill scores the output on six dimensions,
-1–10 each:
+Scoring applies to Edit mode only; Detect mode returns quoted findings, not
+a score (see [Editing workflow](#4-editing-workflow)). After the final
+rewrite, the skill scores the output on six dimensions, 1–10 each:
 
 | Dimension | Low (1–3) | Mid (4–7) | High (8–10) |
 |-----------|-----------|-----------|-------------|
@@ -424,10 +587,13 @@ After the final rewrite, the skill scores the output on six dimensions,
 triggers another revision. Style Fidelity below 8/10 also triggers a
 revision when Style Mirroring is active. These are the only automated
 checkpoints in the process. Everything else is editorial judgment, guided
-by the [design principles](#3-design-principles-the-38-patterns) above.
+by the [design principles](#3-design-principles-the-42-patterns) above.
 
 The score always applies to the version after the anti-AI audit and final
-rewrite, never to the first draft.
+rewrite, never to the first draft. Step 7, the What Changed section (v8),
+is delivered alongside the score, not in place of it. This scoring table
+applies to General form only; Narrative form's Detect path reports a
+feature count instead, per [Section 8](#8-form-narrative-work-v9).
 
 ---
 
@@ -441,12 +607,20 @@ references/
   style-profile.md                Profile template, extraction algorithm,
                                    12-dimension taxonomy, genre compatibility
                                    guide, worked Mode A and Mode B examples
-  worked-example.md               Full 8-step process applied to AI-generated
+  worked-example.md               Full process applied to AI-generated
                                    text, with anti-AI audit and scoring
   vocabulary.md                   Full AI vocabulary removal list, jargon
                                    replacement table, throat-clearing openers
   genre-calibration.md            v7: genre-by-pattern exception table for
                                    confirmed human-authored text
+  detect-mode.md                  v8: Detect mode output template, no-sample
+                                   voice-signal notes, worked example
+  narrative-mode.md               v9: Structure Sheet, narrative audit
+                                   process, scope limits by form
+  narrative-features.md           v9: all 30 core narrative features with
+                                   human and AI baseline numbers
+  narrative-fingerprints.md       v9: per-model tells for Claude, GPT,
+                                   Gemini, DeepSeek, Kimi
 README.md                         This file
 ```
 
@@ -458,8 +632,82 @@ README.md                         This file
   the upstream source maintained by WikiProject AI Cleanup
 - [stop-slop](https://github.com/hvpandya/stop-slop) by Hardik Pandya:
   structural rules covering binary contrasts, false agency, rhythm, and voice
+- [no-ai-slop](https://github.com/petergyang/no-ai-slop) by Peter Yang
+  (MIT licensed): Detect mode, patterns 39–42, and the portability test (v8)
+- [StoryScope](https://arxiv.org/abs/2604.03136) (Russell, Rajendhran, Pham,
+  Iyyer, Wieting; UMD and Google DeepMind; COLM 2026), via the standalone
+  `humanscope` skill: Form, the Structure Sheet, and the narrative audit (v9)
 - [Karpathy on LLM pitfalls](https://x.com/karpathy/status/2015883857489522876):
   the source for the four editorial discipline principles
+
+### Considered and not integrated
+
+[watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover)
+was evaluated for v8 alongside no-ai-slop and left out. Its function is
+stripping C2PA/EXIF/XMP provenance metadata and statistical text watermarks
+(SynthID-Text, Kirchenbauer green-list, Aaronson keyed-Gumbel) from files.
+That's a different category of tool from anything else in this skill: it
+targets detection and provenance systems directly, which conflicts with the
+boundary in [What this isn't](#what-this-isnt). Noted here so the decision
+is documented alongside the sources that were integrated, not just made
+silently.
+
+---
+
+## 8. Form: narrative work (v9)
+
+v8.1 shipped `human` and a companion skill, `humanscope`, side by side,
+with the two triggering separately and a documented boundary between them.
+v9 reverses that decision: `humanscope`'s content is folded directly into
+`human` as **Form**, a dimension that sits alongside Task Type (Edit or
+Detect). There is only one skill now.
+
+**Why the reversal.** The side-by-side architecture worked, but it put the
+routing burden on two separate frontmatter descriptions trying to stay in
+sync, and it required the user (or Claude) to correctly guess which of two
+similarly-named skills a request belonged to before either one could run.
+Folding narrative work in as a mode of the same skill removes that guess:
+`human` now checks Form itself, as the first thing it does, the same way
+it already checks Task Type.
+
+**What Form actually changes.** Check the input's form before choosing a
+task type: **Narrative** is a story, screenplay, scene, short film or reel
+script, or a personal essay the user will publish under their own name;
+**General** is everything else. For Narrative form:
+
+- **Edit** produces a Structure Sheet of ten story-shape decisions
+  (timeline, subplots, what causes the ending, how it ends, whether the
+  narrator states the theme, and five more) before drafting or
+  restructuring, gets sign-off, then drafts. Only after structure is set
+  does the standard 42-pattern pass apply, as a cosmetic layer, never a
+  substitute for it. This ordering is load-bearing: StoryScope found that
+  AI-generated fiction is separable from human fiction at 93.2 macro-F1
+  using structure alone, and that professional-grade prose rewriting only
+  brings that down to 93.9. A 1.6-point drop. Running the pattern pass
+  first, or alone, on narrative text produces prose that reads more
+  smoothly but still carries the structural fingerprint.
+- **Detect** scores the draft against 30 measured narrative features
+  instead of scanning for the 42 patterns alone, reports which lean AI as
+  a plain count (never a probability or verdict, consistent with
+  [What this isn't](#what-this-isnt)), and splits structural fixes from
+  cosmetic ones so the user knows which fixes will actually move the
+  needle.
+
+Full process, the ten-decision table with human and AI baseline rates,
+scope limits by form (feature film vs. reel script vs. documentary), and
+per-model fingerprints are in the
+[narrative mode reference](./references/narrative-mode.md),
+[narrative features reference](./references/narrative-features.md), and
+[narrative fingerprints reference](./references/narrative-fingerprints.md).
+
+**Provenance.** This material originates from `humanscope`, a standalone
+skill built on StoryScope (Russell, Rajendhran, Pham, Iyyer, and Wieting;
+University of Maryland and Google DeepMind; COLM 2026). Its Structure
+Sheet, narrative audit process, and reference tables are carried into this
+repository largely unchanged; only the routing layer, some terminology
+(its "Mode A" and "Mode B" are renamed to avoid colliding with this
+skill's own Style Mirroring Mode A/B), and the Integration/References
+sections were adapted to fit a single-skill structure.
 
 ---
 

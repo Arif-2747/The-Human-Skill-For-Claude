@@ -147,7 +147,7 @@ Scan for:
 - Punctuation habits — note anything unusual
 
 **Step 4: Check for AI tells.**
-Scan the sample against the 38 patterns. List any found. These are not
+Scan the sample against the 42 patterns. List any found. These are not
 mirrored; they are flagged and removed even in style-matched output.
 
 **Step 5: Flag uncertain dimensions.**
