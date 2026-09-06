@@ -2,21 +2,19 @@
 name: human
 version: 9.0.0
 description: |
-  Use this skill to humanize text, remove AI writing patterns, make prose
-  sound natural, fix robotic writing, write new content in the user's own
-  voice, or check whether a draft reads as AI-written. Covers general and
-  business prose plus narrative work: fiction, screenplays, short film and
-  reel scripts, and personal essays under the writer's name. Triggers on
-  "this sounds like AI," "make this more human," "de-AI this," "rewrite
-  this naturally," "write in my style," "remove the AI tells," "does this
-  read as AI," "audit this draft," "why does my script feel generic," or
-  any request to edit prose for naturalness, and on drafting a new
-  narrative piece. Applies 42 word- and sentence-level patterns (29 from
-  blader/humanizer, 9 stop-slop rules, 4 from no-ai-slop), voice injection,
-  Style Mirroring, a Detect mode, Karpathy editorial discipline, and for
-  narrative form a Structure Sheet and 30-feature audit built on
-  StoryScope (COLM 2026). Preserves full complexity, depth, and length;
-  never simplifies or summarizes.
+  Use this skill to humanize text, remove AI writing patterns, strip multi-vendor
+  AI watermarks (invisible Unicode Layer A, statistical sampling Layer B, and
+  C2PA/metadata), make prose sound natural, fix robotic writing, write in the
+  user's voice, or check if a draft reads as AI. Covers general/business prose,
+  narrative work (fiction, screenplays, scripts, essays), and file provenance.
+  Triggers on "this sounds like AI," "make this more human," "de-AI this,"
+  "rewrite this naturally," "write in my style," "remove the AI tells," "does
+  this read as AI," "strip AI watermarks," "remove C2PA," "clean AI metadata,"
+  "remove invisible Unicode," /remove-ai-marks, or narrative drafting. Applies 42
+  patterns (humanizer, stop-slop, no-ai-slop), Unicode hygiene, token entropy
+  dispersion, voice injection, Style Mirroring, Detect mode, Karpathy editorial
+  discipline, and StoryScope 30-feature narrative audit. Preserves full
+  complexity, depth, and length; never simplifies or summarizes.
 ---
 
 # Human

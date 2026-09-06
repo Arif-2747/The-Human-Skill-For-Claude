@@ -47,6 +47,22 @@ Style Mirroring, upload or paste your writing sample in the same message as
 your request; the skill detects it and runs the profile extraction on its
 own.
 
+**New in v10: Provenance & Watermark Hygiene.** `human` now integrates
+provenance and watermark hygiene capabilities from
+[guillaumemeyer/watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover).
+While `human`'s 42 patterns address vocabulary and syntax (Layers 1-2) and
+Form addresses narrative structure (Layer 3), LLMs also inject low-level
+machine provenance: invisible Unicode steganography (zero-width spaces, bidi
+overrides, tag characters, homoglyphs), statistical token-sampling marks
+(Kirchenbauer green-lists, SynthID-Text, Aaronson/Gumbel EXP), and file
+container metadata (C2PA Content Credentials, docProps, PDF info). In v10,
+`human` establishes a complete 5-layer hierarchy: Layer A deterministic
+Unicode hygiene, Layer B statistical entropy dispersion, and Layer C
+container metadata stripping, supported by dedicated reference guides:
+[watermark classes](./references/watermark-classes.md),
+[removal matrix](./references/removal-matrix.md), and
+[detectors and stylometry](./references/detectors-and-stylometry.md).
+
 **New in v9: Form.** `human` and a separate narrative-focused skill,
 `humanscope`, are now one skill. `humanscope` was built on
 [StoryScope](https://arxiv.org/abs/2604.03136) (Russell, Rajendhran, Pham,
@@ -149,6 +165,22 @@ was built to prevent. Its em dash rule is also looser than this skill's
 [Design principles](#style-patterns-14-23) for why v8 does not adopt that
 looser rule.
 
+### watermarks-remover
+
+[watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover) by
+Guillaume Meyer addresses the machine-level provenance layer that semantic
+and stylistic tools never touch: invisible Unicode steganographic carriers
+(zero-width spaces, bidi overrides, language tag characters, confusable
+homoglyphs), statistical token-sampling watermarks (Kirchenbauer green-lists,
+SynthID-Text, Aaronson/Gumbel EXP), and document/file metadata (C2PA Content
+Credentials, OOXML docProps, PDF trailers/info).
+
+**What it doesn't do:** it is a technical provenance hygiene tool, not a prose
+craft tool. It cleans metadata and disrupts token watermarks, but it does not
+fix hollow prose, monotone rhythm, inflated significance, or lacking
+authorial voice. Integrating it into `human` bridges low-level machine hygiene
+with high-level prose authenticity.
+
 ### The problem none of the three sources solves: over-correction
 
 Give a capable model either skill and ask it to humanize a piece of text. It
@@ -204,11 +236,15 @@ kind of authorship claim this skill declines to make. It is also, by
 design, not something someone could use to learn how to slip a specific
 draft past a detector: it reports what patterns are present, not how close
 the draft is to a detector's decision boundary, and it makes no changes to
-the text at all. This is why `watermarks-remover`, a related but different
-kind of tool that strips AI-provenance metadata and statistical watermarks
-from files, was not integrated into this skill alongside no-ai-slop: that
-tool's purpose is defeating detection and provenance systems directly,
-which is the one thing this project has committed not to build.
+the text at all. In v10, the technical provenance and watermark hygiene
+capabilities from `watermarks-remover` are integrated to address the
+low-level machine provenance layer (invisible Unicode, statistical token
+sampling watermarks, and container metadata) for content the user owns or
+is authorized to process. This completes the full stack of text and document
+hygiene without compromising the project's ethical boundary: cleaning
+provenance is about personal privacy, technical hygiene, and removing
+unwanted platform telemetry, never about deceptive attribution or academic
+fraud. See [Section 9](#9-provenance--watermark-hygiene-v10) below.
 
 v9's narrative audit, folded in from `humanscope`, holds the same line for
 Form's Detect path: it reports a count of which of the 30 narrative
@@ -621,6 +657,12 @@ references/
                                    human and AI baseline numbers
   narrative-fingerprints.md       v9: per-model tells for Claude, GPT,
                                    Gemini, DeepSeek, Kimi
+  watermark-classes.md            v10: multi-vendor AI provenance mark
+                                   taxonomy (Unicode, sampling, C2PA)
+  removal-matrix.md               v10: operational matrix for mark
+                                   detection, mitigation, and verification
+  detectors-and-stylometry.md     v10: detector families, zero-LLM
+                                   stylometry metrics (burstiness, MATTR)
 README.md                         This file
 ```
 
@@ -637,20 +679,21 @@ README.md                         This file
 - [StoryScope](https://arxiv.org/abs/2604.03136) (Russell, Rajendhran, Pham,
   Iyyer, Wieting; UMD and Google DeepMind; COLM 2026), via the standalone
   `humanscope` skill: Form, the Structure Sheet, and the narrative audit (v9)
+- [guillaumemeyer/watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover):
+  provenance mark taxonomy, invisible Unicode detection & stripping (Layer A),
+  statistical token-sampling watermarks (Layer B), container/C2PA metadata
+  cleaning (Layer C), and zero-LLM stylometric estimators (v10)
 - [Karpathy on LLM pitfalls](https://x.com/karpathy/status/2015883857489522876):
   the source for the four editorial discipline principles
 
-### Considered and not integrated
+### Evolution & Integration
 
-[watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover)
-was evaluated for v8 alongside no-ai-slop and left out. Its function is
-stripping C2PA/EXIF/XMP provenance metadata and statistical text watermarks
-(SynthID-Text, Kirchenbauer green-list, Aaronson keyed-Gumbel) from files.
-That's a different category of tool from anything else in this skill: it
-targets detection and provenance systems directly, which conflicts with the
-boundary in [What this isn't](#what-this-isnt). Noted here so the decision
-is documented alongside the sources that were integrated, not just made
-silently.
+`watermarks-remover` was initially evaluated for v8 alongside no-ai-slop and
+held in reserve to protect the project's non-adversarial boundary. In v10,
+its technical taxonomy and hygiene principles were integrated under a clear
+mandate: authorial privacy, technical cleanup, and telemetry removal on
+content the user owns. It completes the 5-layer hierarchy without compromising
+the core discipline.
 
 ---
 
@@ -708,6 +751,84 @@ repository largely unchanged; only the routing layer, some terminology
 (its "Mode A" and "Mode B" are renamed to avoid colliding with this
 skill's own Style Mirroring Mode A/B), and the Integration/References
 sections were adapted to fit a single-skill structure.
+
+---
+
+## 9. Provenance & watermark hygiene (v10)
+
+v10 integrates the technical provenance and watermark hygiene framework from
+[guillaumemeyer/watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover).
+This expands `human` from an editorial and narrative craft skill into a complete
+5-layer text and document hygiene system.
+
+### Why low-level provenance matters
+
+Prior to v10, `human` addressed vocabulary and phrasing (Layer 1), syntax and
+rhythm (Layer 2), narrative structure (Layer 3), and voice authenticity (Layer 4).
+However, modern language models inject machine-level provenance signals into
+generated output that no vocabulary checklist can touch:
+
+1. **Layer A (Edit-based & Invisible Unicode)**: Zero-width spaces (`U+200B`),
+   word joiners (`U+2060`), byte order marks (`U+FEFF`), bidi directional
+   overrides, language tag characters, and space homoglyphs injected as
+   steganographic carrier channels.
+2. **Layer B (Generative Token-Sampling Watermarks)**: Mathematical biases
+   applied during token generation (Kirchenbauer green-lists, Google
+   SynthID-Text tournament sampling, Aaronson/Gumbel EXP). These survive
+   isolated synonym swaps because the underlying n-gram and token transition
+   probabilities remain intact.
+3. **Layer C (Container & Document Provenance Metadata)**: C2PA Content
+   Credentials manifests, OOXML `docProps/core.xml` creator tags, PDF object
+   stream info dictionaries, HTML generator tags, and Markdown YAML keys.
+
+### The 5-layer hierarchy
+
+```
+┌────────────────────────────────────────────────────────┐
+│ Layer 4: Voice & Style (Style Profile, 12 dimensions)  │
+├────────────────────────────────────────────────────────┤
+│ Layer 3: Narrative Structure (StoryScope, 30 features) │
+├────────────────────────────────────────────────────────┤
+│ Layer 2: Syntax & Rhythm (Stop-slop, cadence, em dash) │
+├────────────────────────────────────────────────────────┤
+│ Layer 1: Vocabulary & Phrasing (42 humanizer patterns) │
+├────────────────────────────────────────────────────────┤
+│ Layer 0: Machine Provenance (watermarks & metadata)    │
+│   ├─ Layer A: Invisible Unicode & steganography        │
+│   ├─ Layer B: Statistical token-sampling watermarks    │
+│   └─ Layer C: Container & C2PA provenance metadata     │
+└────────────────────────────────────────────────────────┘
+```
+
+### Operational process
+
+When processing text or documents under v10:
+
+1. **Layer A Pre-Flight Scrub**: Scan for non-load-bearing invisible Unicode
+   and exotic spaces, normalizing them before rewriting. Crucially, load-bearing
+   codepoints are preserved: emoji ZWJ sequences, complex script orthography
+   (Persian ZWNJ, Devanagari conjuncts), and language subdivision flag tags are
+   never stripped. See [watermark classes reference](./references/watermark-classes.md).
+2. **Layer B Structural Disruption**: Instead of superficial synonym cycling,
+   the model reorganizes sentence dependencies, inverts clauses, varies
+   sentence lengths (targeting burstiness $CV \ge 0.45$), and diversifies
+   local vocabulary (targeting MATTR $\ge 0.72$). This dilutes token-sampling
+   correlations below statistical detection thresholds. See
+   [detectors and stylometry reference](./references/detectors-and-stylometry.md).
+3. **Layer C Container Sanitization**: For Markdown and HTML files, AI generator
+   tags and identifying YAML keys are purged. For binary files (DOCX, PDF, images),
+   full cleaning can be performed via the optional `watermarks-remover` HTTP
+   service (`POST /clean`). See [removal matrix reference](./references/removal-matrix.md).
+4. **Post-Flight Hygiene Check**: Confirm that no em dashes or formatting
+   anomalies were introduced during the rewrite.
+
+### Responsible use boundary
+
+Consistent with `human`'s founding principles, provenance hygiene is built for
+**content you own or are authorized to process**: safeguarding personal privacy,
+removing unwanted corporate tracking or telemetry, and restoring clean authorial
+hygiene. It is not intended for academic fraud or deceptive claims of human
+authorship.
 
 ---
 
