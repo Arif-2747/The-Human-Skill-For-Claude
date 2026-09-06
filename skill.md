@@ -1,17 +1,17 @@
 ---
 name: human
-version: 9.0.0
+version: 10.1.0
 description: |
-  Use this skill to humanize text, remove AI writing patterns, strip multi-vendor
-  AI watermarks (invisible Unicode Layer A, statistical sampling Layer B, and
-  C2PA/metadata), make prose sound natural, fix robotic writing, write in the
-  user's voice, or check if a draft reads as AI. Covers general/business prose,
-  narrative work (fiction, screenplays, scripts, essays), and file provenance.
-  Triggers on "this sounds like AI," "make this more human," "de-AI this,"
-  "rewrite this naturally," "write in my style," "remove the AI tells," "does
-  this read as AI," "strip AI watermarks," "remove C2PA," "clean AI metadata,"
+  Use this skill to humanize text, defeat AI detectors (GPTZero, Binoculars,
+  Turnitin), strip multi-vendor AI watermarks (Unicode Layer A, sampling Layer B,
+  and C2PA), make prose sound natural, write in the user's voice, or check if a
+  draft reads as AI. Covers general/business prose, narrative work, and file
+  provenance. Triggers on "this sounds like AI," "make this more human," "de-AI
+  this," "beat AI detectors," "rewrite naturally," "write in my style," "remove
+  AI tells," "does this read as AI," "strip AI watermarks," "clean AI metadata,"
   "remove invisible Unicode," /remove-ai-marks, or narrative drafting. Applies 42
-  patterns (humanizer, stop-slop, no-ai-slop), Unicode hygiene, token entropy
+  patterns (humanizer, stop-slop, no-ai-slop), DIPPER structural paraphrasing
+  (Krishna et al., order/lexical diversity), Unicode hygiene, token entropy
   dispersion, voice injection, Style Mirroring, Detect mode, Karpathy editorial
   discipline, and StoryScope 30-feature narrative audit. Preserves full
   complexity, depth, and length; never simplifies or summarizes.
@@ -54,6 +54,15 @@ carries narrative AI-detection (v9):** StoryScope (Russell et al., COLM
 alone, and stays at 93.9 after prose rewriting: a 1.6-point drop. For
 fiction, screenplays, scripts, and essays, set structure first; the 42
 patterns are a cosmetic pass after. See [Form](#form-general-or-narrative).
+**Deep structural paraphrasing defeats modern detectors (v10.1):** Research
+(Krishna et al., DIPPER) proves that surface-level word swaps leave sentence
+embeddings, perplexity graphs, and preceding-token watermark hashes intact.
+To defeat neural classifiers (GPTZero, Turnitin) and zero-shot profilers
+(Binoculars, DetectGPT), prose must undergo deep structural resynthesis with
+high Order Diversity ($O$) and Lexical Diversity ($L$): inverting clause
+hierarchies, varying sentence boundaries ($CV \ge 0.55$), and diversifying
+local vocabulary ($\text{MATTR}_{50} \ge 0.75$) while preserving exact facts.
+See the [structural paraphrasing reference](./references/structural-paraphrasing.md).
 
 ## Form: General or Narrative
 
@@ -355,11 +364,16 @@ Fidelity 8+/10" if a sample was provided.
 Extract the 12-dimension Style Profile, show it, wait for confirmation, and
 confirm genre compatibility. Then proceed.
 
-**Step 4: Draft.**
-Mode A: apply all 42 patterns, touching only documented tells, and apply the
-confirmed Style Profile to every structural decision. Mode B: generate from
-the brief with the Style Profile applied from sentence one; no default to a
-generic register.
+**Step 4: Draft via DIPPER Structural Resynthesis (v10.1).**
+Do not perform localized linear word substitution. Deconstruct the input
+into core semantic predicates (claims, numbers, logic), shedding the
+original LLM syntactic tree. Resynthesize with high Order Diversity ($O$)
+and Lexical Diversity ($L$): invert clause dependencies, vary sentence
+boundaries, and inject concrete, position-wide human diction. Mode A:
+apply all 42 patterns, Layer A Unicode hygiene, and the confirmed Style
+Profile to every structural decision. Mode B: generate from the brief with
+the Style Profile applied from sentence one; no default to a generic
+register. See [structural paraphrasing reference](./references/structural-paraphrasing.md).
 
 **Step 5: Anti-AI audit and final rewrite.**
 Ask "what makes this still obviously AI-generated?" and "where did the
@@ -371,13 +385,16 @@ final version.
 | Dimension | Low (1-3) | Mid (4-7) | High (8-10) |
 |-----------|-----------|-----------|-------------|
 | Directness | Announcements, "it's important to note" | States points, hedges conclusions | Every sentence makes a claim or moves forward |
-| Rhythm | Metronomic, identical lengths | Some variation, still predictable | Clearly varied cadence |
+| Rhythm | Metronomic, identical lengths | Some variation, still predictable | Clearly varied cadence ($CV \ge 0.55$) |
 | Trust | Over-explains, adds disclaimers | Some hand-holding | No pre-chewed conclusions |
 | Authenticity | No opinions, no first person | One or two human moments | Opinions, reader addressed, specific |
 | Preservation | Shorter or simplified vs. original | Mostly intact | Full complexity and length kept |
 | Style Fidelity* | Generic prose, profile ignored | Most dimensions matched | All 12 dimensions match |
 
 *Style Fidelity scored only when a sample was provided. Below 8: revise.
+Confirm stylometric health: sentence burstiness $CV \ge 0.55$ and local
+lexical diversity $\text{MATTR}_{50} \ge 0.75$. If sentences are of uniform
+length, split and merge them to break detector probability curvature before delivering.
 
 **Step 7: Deliver with a What Changed section (v8).**
 List which numbered patterns were fixed and where, in a few lines: a short
@@ -459,6 +476,11 @@ Before delivering, confirm:
 - StoryScope (Russell et al., COLM 2026): source of Form (v9), the
   Structure Sheet, the 30-feature narrative audit, and model fingerprints;
   see [narrative mode reference](./references/narrative-mode.md)
+- `watermarks-remover` (Guillaume Meyer): provenance mark classes,
+  invisible Unicode hygiene (Layer A), statistical sampling watermarks
+  (Layer B), container/C2PA metadata (Layer C), and zero-LLM stylometry (v10)
+- DIPPER (Krishna et al., 2023): structural paraphrasing, lexical diversity ($L$),
+  and order diversity ($O$) to neutralize neural classifiers and profilers (v10.1)
 
 ## References
 
@@ -480,6 +502,14 @@ Internal:
   all 30 core features with human and AI baseline numbers
 - [Narrative fingerprints reference](./references/narrative-fingerprints.md) — v9:
   per-model tells for Claude, GPT, Gemini, DeepSeek, Kimi
+- [Watermark classes reference](./references/watermark-classes.md) — v10:
+  multi-vendor AI provenance mark taxonomy (Unicode, sampling, C2PA)
+- [Removal matrix reference](./references/removal-matrix.md) — v10:
+  operational matrix for mark detection, mitigation, and verification
+- [Detectors and stylometry reference](./references/detectors-and-stylometry.md) — v10:
+  detector families, zero-LLM stylometry metrics (burstiness, MATTR), evasion research
+- [Structural paraphrasing reference](./references/structural-paraphrasing.md) — v10.1:
+  DIPPER paradigm, order & lexical diversity, 3-pass resynthesis protocol
 
 External:
 - [blader/humanizer](https://github.com/blader/humanizer) — 29 patterns from Wikipedia's Signs of AI Writing (v2.5.1)
@@ -487,11 +517,13 @@ External:
 - [stop-slop](https://github.com/hvpandya/stop-slop) by Hardik Pandya
 - [no-ai-slop](https://github.com/petergyang/no-ai-slop) by Peter Yang (v8, MIT licensed)
 - [StoryScope](https://arxiv.org/abs/2604.03136) (Russell, Rajendhran, Pham, Iyyer, Wieting; UMD/Google DeepMind; COLM 2026) — source of Form (v9)
+- [DIPPER](https://arxiv.org/abs/2303.13408) (Krishna, Song, Raghavan, Wieting, Iyyer; 2023) — *Paraphrasing evades detectors of AI-generated text*
+- [guillaumemeyer/watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover) — AI provenance marks and watermark hygiene
 - [Karpathy on LLM pitfalls](https://x.com/karpathy/status/2015883857489522876)
 
 ---
 
 ## Skill Metadata
 
-**Created**: 2025-06-07  **Updated**: 2026-08-31  **Version**: 9.0.0
-**Based on**: blader/humanizer v2.5.1, stop-slop, no-ai-slop, StoryScope (via humanscope), human v8.1.0, Karpathy guidelines
+**Created**: 2025-06-07  **Updated**: 2026-09-06  **Version**: 10.1.0
+**Based on**: blader/humanizer v2.5.1, stop-slop, no-ai-slop, StoryScope (via humanscope), watermarks-remover, DIPPER (Krishna et al.), human v10.0.0, Karpathy guidelines

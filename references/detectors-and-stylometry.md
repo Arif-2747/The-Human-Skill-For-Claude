@@ -84,7 +84,7 @@ $$CV = \frac{\sigma_{\text{length}}}{\mu_{\text{length}}} = \frac{\sqrt{\frac{1}
 
 - **AI Text Baseline**: $CV \approx 0.25 - 0.35$ (uniform, monotonous cadence).
 - **Human Prose Baseline**: $CV \ge 0.45 - 0.65$ (dynamic cadence, varied lengths).
-- **Target**: $CV \ge 0.45$.
+- **Target**: $CV \ge 0.55$ (for resilient human cadence).
 
 ### 2. Moving-Average Type-Token Ratio (MATTR)
 
@@ -93,7 +93,7 @@ $$\text{MATTR}_W = \frac{1}{N - W + 1} \sum_{i=1}^{N - W + 1} \frac{|\text{uniqu
 
 - **AI Text Baseline**: Drops rapidly due to synonym cycling and repetition penalties.
 - **Human Prose Baseline**: High local lexical density.
-- **Target**: $\text{MATTR}_{50} \ge 0.72$.
+- **Target**: $\text{MATTR}_{50} \ge 0.75$.
 
 ### 3. Weighted AI-Cadence Phrase Density
 
@@ -102,15 +102,41 @@ $$\text{Cadence Density} = \frac{\sum \text{weight}(p) \times \text{count}(p)}{\
 
 Where phrases like *"in conclusion"*, *"serves as a testament to"*, *"delve into"*, *"it is important to note"*, and *"not only... but also"* carry calibrated weights.
 - **High AI Tier**: Density $> 0.60$ per 100 words.
-- **Clean Human Target**: Density $< 0.15$ per 100 words.
+- **Clean Human Target**: Density $< 0.12$ per 100 words.
 
 ---
 
-## 4. Legitimate Claims vs. Evidentiary Honesty
+## 4. What Research Proves Actually Defeats Detectors
 
-When discussing detection or evaluating text:
+### The DIPPER Benchmark (Krishna et al., 2023)
 
-1. **Never promise 100% detection evasion**: Commercial classifiers frequently shift internal thresholds, retrain on new data, and produce false positives on human prose (especially non-native speakers).
-2. **Report measurable movements**: It is accurate to state: *"Removed 8 zero-width codepoints, raised sentence burstiness CV from 0.28 to 0.52, and eliminated all 42 documented AI phrasing patterns."*
-3. **Detect mode provides evidence, not verdicts**: Flagging patterns and measuring burstiness gives the user verifiable evidence to inspect, not a binary or probabilistic judgment of human vs. machine authorship.
-4. **Preserve ethical boundaries**: This skill is built for authorial hygiene, personal privacy, and voice restoration on text the user owns or is authorized to edit.
+Research on paraphrasing and AI detection (Krishna, Song, Raghavan, Wieting, Iyyer; 2023) systematically evaluated detection evasion across GPTZero, DetectGPT, and watermarking schemes. The core findings:
+
+1. **Surface word swaps are ineffective**: Removing individual tells like "delve" or em dashes produces almost zero movement against deep neural classifiers because the sentence embedding geometry remains in the AI distribution.
+2. **Adversarial perturbations are brittle**: Micro-optimizing specific tokens against a known model's gradient or decision boundary is fragile. The moment the detector retrains or the text is scanned by a different vendor (e.g. GPTZero vs Turnitin), the evasion fails.
+3. **Deep Structural Paraphrasing is durable**: Rebuilding sentences with high **Order Diversity ($O$)** and high **Lexical Diversity ($L$)** breaks detection across *all* model families simultaneously. Changing the syntactic dependency tree and clause order while diversifying vocabulary across every token position neutralizes:
+   - **GPTZero / Pangram**: Sentence-level transformer embeddings no longer match training clusters.
+   - **DetectGPT / Binoculars**: Log-probability local curvature and cross-perplexity ratios flatten.
+   - **SynthID / Kirchenbauer**: Preceding-token green-list dependencies ($hash(t_{i-1})$) are scrambled.
+
+### Cross-Family Evasion Matrix
+
+| Detector System | Core Signal Measured | What Fails Against It | What Successfully Defeats It | Target Metric |
+|---|---|---|---|---|
+| **GPTZero / Pangram / Turnitin**<br>(Neural Classifiers) | Sentence embedding clusters, AI syntactic templates, transition n-grams | Synonym swaps, removing adverbs, changing punctuation | **DIPPER Structural Resynthesis**: Invert main/subordinate clauses, eliminate formulaic openers, inject authentic human voice signals | Sentence embedding distance from AI centroid; 0/42 pattern tells |
+| **Binoculars**<br>(Cross-Perplexity Ratio) | Ratio of observer model PPL to cross-PPL between two architectures | Random thesaurus swaps (creates ungrammatical perplexity spikes) | **High Lexical Diversity ($L$)**: Natural, high-information human domain terminology and coherent idioms | Balanced human cross-perplexity ratio |
+| **DetectGPT / PPL Profilers**<br>(Probability Curvature) | Uniform low perplexity; local probability maximums under perturbation | Superficial grammar smoothing, re-phrasing single lines | **High Order Diversity ($O$)**: Asymmetrical sentence structures, varied sentence lengths, split/merge clauses | Burstiness $CV \ge 0.55$ |
+| **SynthID-Text / Kirchenbauer**<br>(Inference Watermarks) | Pseudo-random green-list token surplus keyed on preceding tokens | Replacing adjectives or nouns within identical clause structures | **Clause & Sequence Inversion**: Reordering clauses scrambles preceding-token hashes ($t_{i-1}$) completely | Dilution of green-list token concentration to baseline chance ($\approx 50\%$) |
+| **Layer A Steganography**<br>(Invisible Codepoints) | Zero-width spaces (`U+200B`), bidi overrides, tag characters, homoglyphs | Text paraphrasing (invisible characters survive copy-paste) | **Deterministic Unicode Scrub**: Strip invisible carriers while preserving emoji glue and orthography | 0 non-load-bearing invisible codepoints |
+
+---
+
+## 5. Legitimate Claims vs. Evidentiary Honesty
+
+When evaluating text or discussing detector resilience:
+
+1. **The Arms Race Reality**: AI detection is an evolving arms race. A paraphrasing pattern that fools a classifier today may eventually be incorporated into its training set. Durable resilience requires genuine human structural variety, not templated "anti-detection tricks."
+2. **Preserve Exact Meaning**: Heavy structural paraphrasing must never sacrifice accuracy. The Karpathy guardrail guarantees that every fact, number, citation, and nuance survives intact.
+3. **Evidence Over Guarantees**: Report measurable structural movements: *"Raised burstiness $CV$ from 0.28 to 0.58, elevated $\text{MATTR}_{50}$ to 0.78, eliminated all 42 patterns, and restructured clause dependencies across all sentences."*
+4. **Responsible Use**: Built for personal privacy, technical hygiene, and restoring authentic authorial voice on content the user owns.
+

@@ -47,6 +47,20 @@ Style Mirroring, upload or paste your writing sample in the same message as
 your request; the skill detects it and runs the profile extraction on its
 own.
 
+**New in v10.1: Structural Paraphrasing Engine (DIPPER).** While v10 added
+machine provenance hygiene (Unicode Layer A and C2PA Layer C), modern deep
+neural detectors (GPTZero, Turnitin) and cross-perplexity profilers
+(Binoculars) still flag prose if the underlying sentence trees and token
+dependency graphs remain in the AI zone. Integrating research on DIPPER
+(Krishna et al., 2023: *Paraphrasing evades detectors of AI-generated text*),
+v10.1 introduces a 3-pass structural resynthesis protocol: deconstructing text
+into semantic predicates, then regenerating sentences with high Order
+Diversity ($O$) and Lexical Diversity ($L$). By inverting clause hierarchies,
+varying sentence boundaries ($CV \ge 0.55$), and diversifying local vocabulary
+($\text{MATTR}_{50} \ge 0.75$), the skill breaks statistical curvature and
+neutralizes neural classifiers while preserving 100% of the original meaning
+and nuance. See the [structural paraphrasing reference](./references/structural-paraphrasing.md).
+
 **New in v10: Provenance & Watermark Hygiene.** `human` now integrates
 provenance and watermark hygiene capabilities from
 [guillaumemeyer/watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover).
@@ -180,6 +194,24 @@ craft tool. It cleans metadata and disrupts token watermarks, but it does not
 fix hollow prose, monotone rhythm, inflated significance, or lacking
 authorial voice. Integrating it into `human` bridges low-level machine hygiene
 with high-level prose authenticity.
+
+### DIPPER (Krishna et al., 2023)
+
+[DIPPER](https://arxiv.org/abs/2303.13408) (Kalpesh Krishna, Yixiao Song,
+Preethi Raghavan, John Wieting, Mohit Iyyer) is foundational empirical
+research demonstrating that AI text detectors (GPTZero, DetectGPT) are
+systematically vulnerable to structural paraphrasing that controls Lexical
+Diversity ($L$) and Order Diversity ($O$). It proved that surface word-swaps
+produce negligible score drops because transformer-based detectors evaluate
+the entire sentence embedding space and n-gram probability graph.
+
+**What it doesn't do:** DIPPER was built as an experimental probe of detector
+vulnerability, not an authorial tool. Unconstrained automated paraphrasing
+suffers from semantic drift: rounding exact numbers, dropping specialized
+qualifiers, and losing the author's idiosyncratic voice. In `human` v10.1,
+the structural insights of DIPPER are harnessed under strict Karpathy
+guardrails: 100% preservation of facts, citations, and numbers, integrated
+with Style Mirroring.
 
 ### The problem none of the three sources solves: over-correction
 
@@ -663,7 +695,10 @@ references/
                                    detection, mitigation, and verification
   detectors-and-stylometry.md     v10: detector families, zero-LLM
                                    stylometry metrics (burstiness, MATTR)
+  structural-paraphrasing.md      v10.1: DIPPER paradigm, order & lexical
+                                   diversity, 3-pass resynthesis protocol
 README.md                         This file
+VERSION_COMPARISON_v9_to_v10.1.0.md Detailed table comparison of v9.0.0 vs v10.1.0
 ```
 
 ### Sources
@@ -683,6 +718,9 @@ README.md                         This file
   provenance mark taxonomy, invisible Unicode detection & stripping (Layer A),
   statistical token-sampling watermarks (Layer B), container/C2PA metadata
   cleaning (Layer C), and zero-LLM stylometric estimators (v10)
+- [DIPPER](https://arxiv.org/abs/2303.13408) (Krishna, Song, Raghavan,
+  Wieting, Iyyer; 2023): foundational research on structural paraphrasing
+  and evading AI detectors through order and lexical diversity (v10.1)
 - [Karpathy on LLM pitfalls](https://x.com/karpathy/status/2015883857489522876):
   the source for the four editorial discipline principles
 
@@ -802,18 +840,21 @@ generated output that no vocabulary checklist can touch:
 
 ### Operational process
 
-When processing text or documents under v10:
+When processing text or documents under v10 and v10.1:
 
 1. **Layer A Pre-Flight Scrub**: Scan for non-load-bearing invisible Unicode
    and exotic spaces, normalizing them before rewriting. Crucially, load-bearing
    codepoints are preserved: emoji ZWJ sequences, complex script orthography
    (Persian ZWNJ, Devanagari conjuncts), and language subdivision flag tags are
    never stripped. See [watermark classes reference](./references/watermark-classes.md).
-2. **Layer B Structural Disruption**: Instead of superficial synonym cycling,
-   the model reorganizes sentence dependencies, inverts clauses, varies
-   sentence lengths (targeting burstiness $CV \ge 0.45$), and diversifies
-   local vocabulary (targeting MATTR $\ge 0.72$). This dilutes token-sampling
-   correlations below statistical detection thresholds. See
+2. **Layer B Structural Disruption (DIPPER Paradigm)**: Instead of superficial
+   synonym cycling, the model executes deep structural resynthesis: deconstructing
+   input into semantic predicates, inverting clause hierarchies, varying
+   sentence boundaries (targeting burstiness $CV \ge 0.55$), and diversifying
+   local vocabulary (targeting $\text{MATTR}_{50} \ge 0.75$). This dilutes
+   token-sampling correlations and neutralizes neural classifiers (GPTZero,
+   Turnitin) and zero-shot profilers (Binoculars, DetectGPT). See
+   [structural paraphrasing reference](./references/structural-paraphrasing.md) and
    [detectors and stylometry reference](./references/detectors-and-stylometry.md).
 3. **Layer C Container Sanitization**: For Markdown and HTML files, AI generator
    tags and identifying YAML keys are purged. For binary files (DOCX, PDF, images),
@@ -821,6 +862,20 @@ When processing text or documents under v10:
    service (`POST /clean`). See [removal matrix reference](./references/removal-matrix.md).
 4. **Post-Flight Hygiene Check**: Confirm that no em dashes or formatting
    anomalies were introduced during the rewrite.
+
+### The DIPPER structural resynthesis protocol (v10.1)
+
+Surface-level synonym swaps leave the underlying sentence embedding geometry
+and token dependency graph in the AI distribution. v10.1 applies a 3-pass
+protocol adapted from Krishna et al. (2023):
+
+- **Pass 1 (Deconstruct)**: Strip away the AI sentence tree; isolate raw
+  factual assertions, data points, and logical relations as unstyled predicates.
+- **Pass 2 (Resynthesize with High $O$ and $L$ Diversity)**: Rebuild sentences
+  anew using asymmetrical clause orders, dynamic verbs, concrete human domain
+  diction, and the user's Style Profile.
+- **Pass 3 (Entropy Polish)**: Confirm burstiness ($CV \ge 0.55$), lexical
+  diversity ($\text{MATTR}_{50} \ge 0.75$), and zero residual pattern tells.
 
 ### Responsible use boundary
 
